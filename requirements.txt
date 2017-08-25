@@ -2,3 +2,4 @@ Flask
 gunicorn
 redis
 requests
+semver
