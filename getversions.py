@@ -14,7 +14,7 @@ URL_PATTERN = 'https://pypi.python.org/pypi/{package}/json'
 
 r_con = redis.StrictRedis(host='***REMOVED***', port=***REMOVED***, db=0, password='***REMOVED***')
 
-conda_pkgs = {}
+conda_forge_pkgs = {}
 
 # https://stackoverflow.com/a/34366589/1005215
 def get_pypi_version(package, url_pattern=URL_PATTERN):
@@ -32,27 +32,29 @@ def get_pypi_version(package, url_pattern=URL_PATTERN):
   return version
 
 def update_info():
+  print('Fetching conda-forge manifest ...')
   repodata = requests.get('https://conda.anaconda.org/conda-forge/linux-64/repodata.json').json()
   for pkg in repodata['packages'].keys():
     pkg_name = repodata['packages'][pkg]['name']
     pkg_ver = repodata['packages'][pkg]['version']
-    if pkg_name in conda_pkgs:
-        conda_pkgs[pkg_name].append(pkg_ver)
+    if pkg_name in conda_forge_pkgs:
+        conda_forge_pkgs[pkg_name].append(pkg_ver)
     else:
-        conda_pkgs[pkg_name] = [pkg_ver]
-  for pkg, val in conda_pkgs.items():
+        conda_forge_pkgs[pkg_name] = [pkg_ver]
+  for pkg, val in conda_forge_pkgs.items():
       try:
-          conda_pkgs[pkg] = sorted(val, key=functools.cmp_to_key(semver.compare))[-1]
+          conda_forge_pkgs[pkg] = sorted(val, key=functools.cmp_to_key(semver.compare))[-1]
       except:
-          conda_pkgs[pkg] = sorted(val)[-1]
+          conda_forge_pkgs[pkg] = sorted(val)[-1]
 
+  print('Fetching pypi manifest ...')
   pypi_soup = BeautifulSoup(requests.get('https://pypi.python.org/simple/').text, 'html.parser')
   pypi_pkgs = [x.text.lower() for x in pypi_soup.findAll('a')]
 
-  common_pkgs = set(conda_pkgs.keys()).intersection(set(pypi_pkgs))
+  common_pkgs = set(conda_forge_pkgs.keys()).intersection(set(pypi_pkgs))
 
   for pkg in sorted(common_pkgs):
-    pkg_com = "{}#{}".format(conda_pkgs[pkg], get_pypi_version(pkg))
-    r_con.set(pkg, pkg_com)
-    # print(pkg_com)
-    time.sleep(2)
+    pkg_com = "{}#{}".format(conda_forge_pkgs[pkg], get_pypi_version(pkg))
+    r_con.hset('conda-forge', pkg, pkg_com)
+    print(pkg, pkg_com)
+    time.sleep(5)
