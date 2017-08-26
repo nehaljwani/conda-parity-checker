@@ -1,8 +1,6 @@
 import json
 import requests
 import time
-import semver
-import functools
 import redis
 import random
 from bs4 import BeautifulSoup
@@ -45,10 +43,7 @@ def update_info(channels):
                 channel_pkgs[pkg_name] = [pkg_ver]
 
         for pkg, val in channel_pkgs.items():
-            try:
-                channel_pkgs[pkg] = sorted(val, key=functools.cmp_to_key(semver.compare))[-1]
-            except:
-                channel_pkgs[pkg] = sorted(val)[-1]
+             channel_pkgs[pkg] = sorted(val, key = lambda x: parse(x))[-1]
 
         common_pkgs = list(set(channel_pkgs.keys()).intersection(pypi_pkgs))
         random.shuffle(common_pkgs)
@@ -60,10 +55,7 @@ def update_info(channels):
             time.sleep(1)
 
 def compare_versions(v1, v2):
-    try:
-        res = semver.compare(v1, v2)
-    except:
-        res = (v1 > v2) - (v1 < v2)
+    res = (parse(v1) > parse(v2)) - (parse(v1) < parse(v2))
     if (res > 0):
         return '🎉'
     elif res == 0:

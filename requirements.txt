@@ -4,4 +4,3 @@ gunicorn
 packaging
 redis
 requests
-semver
