@@ -13,7 +13,7 @@ def homepage():
 
      pkg_info = {}
      status_order = {'🤔🤔🤔': 1, '🤔🤔': 2, '🤔': 3, '✓': 4, '🎉': 5}
-     for channel in ['anaconda', 'conda-forge', 'c3i_test']:
+     for channel in ['conda-forge', 'anaconda', 'c3i_test']:
          res = r_con.hgetall(channel)
          res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1])
                  for k, v in res.items()}
@@ -31,7 +31,7 @@ def homepage():
 def infinity():
     while True:
         try:
-            update_info(['anaconda', 'conda-forge', 'c3i_test'])
+            update_info(['conda-forge', 'anaconda', 'c3i_test'])
         except:
             pass
         time.sleep(3600)
