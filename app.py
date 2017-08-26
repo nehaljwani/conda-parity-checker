@@ -12,6 +12,7 @@ app = Flask(__name__)
 def homepage():
 
      pkg_info = {}
+     status_order = {'🤔🤔🤔': 1, '🤔🤔': 2, '🤔': 3, '✓': 4, '🎉': 5}
      for channel in ['anaconda', 'conda-forge', 'c3i_test']:
          res = r_con.hgetall(channel)
          res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1])
@@ -22,7 +23,7 @@ def homepage():
                  'pkg_status': compare_versions(v[0], v[1]),
                  'pkg_ver': v[0],
                  'pip_ver': v[1]})
-         pkg_info[channel].sort(key = lambda x: x['pkg_status'], reverse=True)
+         pkg_info[channel].sort(key = lambda x: status_order[x['pkg_status']])
 
      return render_template("index.html", pkg_info=pkg_info)
 
