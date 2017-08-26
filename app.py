@@ -1,9 +1,10 @@
-from flask import Flask
-from datetime import datetime
-from getversions import update_info, r_con
 import threading
 import time
 import os
+from flask import Flask
+from datetime import datetime
+from getversions import update_info, r_con
+from utils import compare_versions
 
 app = Flask(__name__)
 
@@ -16,6 +17,7 @@ def homepage():
     <thead>
      <tr>
         <th>Package Name</th>
+        <th>Status</th>
         <th>Conda Forge Version</th>
         <th>Pip Version</th>
      </tr>
@@ -28,10 +30,14 @@ def homepage():
         <td>{}</td>
         <td>{}</td>
         <td>{}</td>
+        <td>{}</td>
     </tr>'''
     res = r_con.hgetall('conda-forge')
-    res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1]) for k, v in res.items()}
-    return tbl_fmt.format(''.join([row_fmt.format(k,v[0], v[1]) for k,v in sorted(res.items())]))
+    res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1])
+            for k,v in res.items()}
+    return tbl_fmt.format(''.join([row_fmt.format(
+        k, compare_versions(v[0], v[1]), v[0], v[1])
+        for k,v in sorted(res.items())]))
 
 def infinity():
     while True:
