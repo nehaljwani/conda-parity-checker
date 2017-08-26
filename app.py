@@ -4,8 +4,7 @@ import os
 from flask import Flask
 from flask import render_template
 from datetime import datetime
-from getversions import update_info, r_con
-from utils import compare_versions
+from utils import compare_versions, r_con, update_info
 
 app = Flask(__name__)
 
@@ -23,7 +22,7 @@ def homepage():
                  'pkg_status': compare_versions(v[0], v[1]),
                  'pkg_ver': v[0],
                  'pip_ver': v[1]})
-         pkg_info[channel].sort(key = lambda x: x['pkg_status'])
+         pkg_info[channel].sort(key = lambda x: x['pkg_status'], reverse=True)
 
      return render_template("index.html", pkg_info=pkg_info)
 
