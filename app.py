@@ -4,7 +4,7 @@ import os
 from flask import Flask
 from flask import render_template
 from datetime import datetime
-from utils import compare_versions, r_con, update_info
+from utils import CHANNELS, compare_versions, REDIS_CONN, update_info
 
 app = Flask(__name__)
 
@@ -13,8 +13,8 @@ def homepage():
 
      pkg_info = {}
      status_order = {'🤔🤔🤔': 1, '🤔🤔': 2, '🤔': 3, '✓': 4, '🎉': 5}
-     for channel in ['conda-forge', 'anaconda', 'c3i_test']:
-         res = r_con.hgetall(channel)
+     for channel in CHANNELS:
+         res = REDIS_CONN.hgetall(channel)
          res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1])
                  for k, v in res.items()}
          pkg_info[channel] = []
@@ -31,13 +31,17 @@ def homepage():
 def infinity():
     while True:
         try:
-            update_info(['conda-forge', 'anaconda', 'c3i_test'])
+            update_info(CHANNELS)
         except:
             pass
         time.sleep(3600)
 
 if __name__ == '__main__':
-    print('first thread')
-    threading.Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': int(os.environ.get('PORT', 5000))}).start()
-    print('second thread')
+    print('Starting thread to run app ...')
+    threading.Thread(
+            target=app.run,
+            kwargs={'host': '0.0.0.0',
+                    'port': int(os.environ.get('PORT', 5000))}
+            ).start()
+    print('Starting thread to populate info ...')
     threading.Thread(target=infinity).start()

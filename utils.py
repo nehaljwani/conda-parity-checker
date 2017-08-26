@@ -1,3 +1,4 @@
+import os
 import json
 import requests
 import time
@@ -8,7 +9,12 @@ from packaging.version import parse
 
 URL_PATTERN = 'https://pypi.python.org/pypi/{package}/json'
 
-r_con = redis.StrictRedis(host='***REMOVED***', port=***REMOVED***, db=0, password='***REMOVED***')
+REDIS_CONN = redis.StrictRedis(
+        host=os.environ.get('REDIS_HOST', '127.0.0.1'),
+        port=os.environ.get('REDIS_PORT', '6379'),
+        password=os.environ.get('REDIS_PASSWORD', '¯\_(ツ)_/¯'))
+
+CHANNELS = ['conda-forge', 'anaconda', 'c3i_test']
 
 # https://stackoverflow.com/a/34366589/1005215
 def get_pypi_version(package, url_pattern=URL_PATTERN):
@@ -50,7 +56,7 @@ def update_info(channels):
 
         for pkg in common_pkgs:
             pkg_com = "{}#{}".format(channel_pkgs[pkg], get_pypi_version(pkg))
-            r_con.hset(channel, pkg, pkg_com)
+            REDIS_CONN.hset(channel, pkg, pkg_com)
             print(pkg, pkg_com)
             time.sleep(1)
 
