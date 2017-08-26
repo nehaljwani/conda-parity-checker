@@ -59,4 +59,4 @@ def update_info():
     pkg_com = "{}#{}".format(conda_forge_pkgs[pkg], get_pypi_version(pkg))
     r_con.hset('conda-forge', pkg, pkg_com)
     print(pkg, pkg_com)
-    time.sleep(5)
+    time.sleep(1)
