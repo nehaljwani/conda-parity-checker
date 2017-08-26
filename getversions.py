@@ -4,6 +4,7 @@ import time
 import semver
 import functools
 import redis
+import random
 from bs4 import BeautifulSoup
 try:
   from packaging.version import parse
@@ -51,9 +52,10 @@ def update_info():
   pypi_soup = BeautifulSoup(requests.get('https://pypi.python.org/simple/').text, 'html.parser')
   pypi_pkgs = [x.text.lower() for x in pypi_soup.findAll('a')]
 
-  common_pkgs = set(conda_forge_pkgs.keys()).intersection(set(pypi_pkgs))
+  common_pkgs = list(set(conda_forge_pkgs.keys()).intersection(set(pypi_pkgs)))
+  random.shuffle(common_pkgs)
 
-  for pkg in sorted(common_pkgs):
+  for pkg in common_pkgs:
     pkg_com = "{}#{}".format(conda_forge_pkgs[pkg], get_pypi_version(pkg))
     r_con.hset('conda-forge', pkg, pkg_com)
     print(pkg, pkg_com)
