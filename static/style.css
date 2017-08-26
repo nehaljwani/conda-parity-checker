@@ -13,3 +13,34 @@ td, th {
 tr:nth-child(even) {
     background-color: #dddddd;
 }
+
+.button {
+    background-color: #34495e;
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 2px;
+    cursor: pointer;
+    -moz-transition: all .2s ease-in;
+    -o-transition: all .2s ease-in;
+    -webkit-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+}
+
+.button:hover {
+    background: #9b59b6;
+}
+
+div.channels {
+    position: fixed;
+    height: 50px;
+    width: 100%;
+}
+
+.dummy_table {
+    height: 50px;
+}

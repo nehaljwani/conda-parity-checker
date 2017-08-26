@@ -1,0 +1,34 @@
+<html>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <body>
+    <div class="channels">
+    {% for channel in pkg_info.keys() %}
+        <a href="#{{ channel }}" class="button">{{ channel.upper() }}</a>
+    {% endfor %}
+    </div>
+    <div class="content">
+    {% for channel in pkg_info.keys() %}
+    <div id="{{ channel }}" class="dummy_table">
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Package Name</th>
+                <th>Status</th>
+                <th>{{ channel.upper() }} Version</th>
+                <th>PYPI Version</th>
+            </tr>
+        </thead>
+        {% for pkg in pkg_info[channel] %}
+        <tr>
+            <td>{{ pkg.pkg_name }}</td>
+            <td>{{ pkg.pkg_status }}</td>
+            <td>{{ pkg.pkg_ver }}</td>
+            <td>{{ pkg.pip_ver}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endfor %}
+    </div>
+    </body>
+</html>

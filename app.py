@@ -2,6 +2,7 @@ import threading
 import time
 import os
 from flask import Flask
+from flask import render_template
 from datetime import datetime
 from getversions import update_info, r_con
 from utils import compare_versions
@@ -11,38 +12,26 @@ app = Flask(__name__)
 @app.route('/')
 def homepage():
 
-    tbl_fmt = '''
-    <link rel= "stylesheet" type= "text/css" href= "/static/style.css">
-    <table>
-    <thead>
-     <tr>
-        <th>Package Name</th>
-        <th>Status</th>
-        <th>Conda Forge Version</th>
-        <th>Pip Version</th>
-     </tr>
-    </thead>
-    {}
-    </table>'''
+     pkg_info = {}
+     for channel in ['anaconda', 'conda-forge', 'c3i_test']:
+         res = r_con.hgetall(channel)
+         res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1])
+                 for k, v in res.items()}
+         pkg_info[channel] = []
+         for k, v in res.items():
+             pkg_info[channel].append({'pkg_name': k,
+                 'pkg_status': compare_versions(v[0], v[1]),
+                 'pkg_ver': v[0],
+                 'pip_ver': v[1]})
+         pkg_info[channel].sort(key = lambda x: x['pkg_status'])
 
-    row_fmt  = '''
-    <tr>
-        <td>{}</td>
-        <td>{}</td>
-        <td>{}</td>
-        <td>{}</td>
-    </tr>'''
-    res = r_con.hgetall('conda-forge')
-    res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1])
-            for k,v in res.items()}
-    return tbl_fmt.format(''.join([row_fmt.format(
-        k, compare_versions(v[0], v[1]), v[0], v[1])
-        for k,v in sorted(res.items())]))
+     return render_template("index.html", pkg_info=pkg_info)
+
 
 def infinity():
     while True:
         try:
-            update_info()
+            update_info(['anaconda', 'conda-forge', 'c3i_test'])
         except:
             pass
         time.sleep(3600)
