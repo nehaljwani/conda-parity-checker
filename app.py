@@ -4,7 +4,7 @@ import os
 from flask import Flask
 from flask import render_template
 from datetime import datetime
-from utils import CHANNELS, compare_versions, REDIS_CONN, update_info
+from utils import CHANNELS, compare_versions, infinity, REDIS_CONN, update_info
 
 app = Flask(__name__)
 
@@ -28,20 +28,15 @@ def homepage():
      return render_template("index.html", pkg_info=pkg_info)
 
 
-def infinity():
-    while True:
-        try:
-            update_info(CHANNELS)
-        except:
-            pass
-        time.sleep(3600)
-
 if __name__ == '__main__':
     print('Starting thread to run app ...')
     threading.Thread(
-            target=app.run,
-            kwargs={'host': '0.0.0.0',
-                    'port': int(os.environ.get('PORT', 5000))}
+            target = app.run,
+            kwargs = {'host': '0.0.0.0',
+                      'port': int(os.environ.get('PORT', 5000))}
             ).start()
     print('Starting thread to populate info ...')
-    threading.Thread(target=infinity).start()
+    threading.Thread(
+            target = infinity,
+            args = (update_info, (CHANNELS, ))
+            ).start()

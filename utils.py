@@ -77,3 +77,11 @@ def compare_versions(v1, v2):
         if len(v1) >= 1 and len(v2) >= 1 and v1[0] != v2[0]:
             factor = 3
         return factor * '🤔'
+
+def infinity(f, args=(), kwargs={}):
+    while True:
+        try:
+            f(*args, **kwargs)
+        except:
+            pass
+        time.sleep(3600)
