@@ -31,7 +31,7 @@ def homepage():
     </tr>'''
     res = r_con.hgetall('conda-forge')
     res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1]) for k, v in res.items()}
-    return tbl_fmt.format(''.join([row_fmt.format(k,v[0], v[1]) for k,v in res.items()]))
+    return tbl_fmt.format(''.join([row_fmt.format(k,v[0], v[1]) for k,v in sorted(res.items())]))
 
 def infinity():
     while True:
