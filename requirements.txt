@@ -1,6 +1,7 @@
 beautifulsoup4
 Flask
 gunicorn
+packaging
 redis
 requests
 semver

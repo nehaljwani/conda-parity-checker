@@ -6,10 +6,7 @@ import functools
 import redis
 import random
 from bs4 import BeautifulSoup
-try:
-    from packaging.version import parse
-except ImportError:
-    from pip._vendor.packaging.version import parse
+from packaging.version import parse
 
 URL_PATTERN = 'https://pypi.python.org/pypi/{package}/json'
 
@@ -26,8 +23,7 @@ def get_pypi_version(package, url_pattern=URL_PATTERN):
           releases = j['releases']
           for release in releases:
               ver = parse(release)
-              if not ver.is_prerelease:
-                  version = max(version, ver)
+              version = max(version, ver)
   return version
 
 def update_info(channels):
@@ -74,11 +70,12 @@ def compare_versions(v1, v2):
         return '✓'
     else:
         factor = 1
+        # FIXME: Many edge cases here
         v1, v2 = v1.split('.'), v2.split('.')
-        # Difference in major
-        if len(v1) >= 1 and len(v2) >= 1 and v1[0] != v2[0]:
-            factor = 3
         # Difference in minor
         if len(v1) >= 2 and len(v2) >= 2 and v1[1] != v2[1]:
             factor = 2
+        # Difference in major
+        if len(v1) >= 1 and len(v2) >= 1 and v1[0] != v2[0]:
+            factor = 3
         return factor * '🤔'
