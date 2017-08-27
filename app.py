@@ -4,7 +4,8 @@ import os
 from flask import Flask
 from flask import render_template
 from datetime import datetime
-from utils import CHANNELS, compare_versions, infinity, REDIS_CONN, update_info
+from utils import CHANNELS, compare_versions, infinity, REDIS_CONN, update_info, \
+        fetch_pypi_pkg_list
 
 app = Flask(__name__)
 
@@ -34,6 +35,7 @@ if __name__ == '__main__':
             kwargs = {'host': '0.0.0.0',
                       'port': int(os.environ.get('PORT', 5000))}
             ).start()
+    fetch_pypi_pkg_list()
     for channel in CHANNELS:
         print('Starting thread to populate {} info ...'.format(channel))
         threading.Thread(

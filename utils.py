@@ -4,9 +4,11 @@ import requests
 import time
 import redis
 import random
+import threading
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from packaging.version import parse
+from memoize import Memoizer
 
 PYPI_URL_PATTERN = 'https://pypi.python.org/pypi/{package}/json'
 
@@ -20,6 +22,8 @@ REDIS_CONN = redis.StrictRedis(
 CHANNELS = ['conda-forge', 'anaconda', 'c3i_test']
 
 PKG_INFO = {}
+
+memo = Memoizer({})
 
 # https://stackoverflow.com/a/34366589/1005215
 def get_pypi_version(package, url_pattern=PYPI_URL_PATTERN):
@@ -37,6 +41,7 @@ def get_pypi_version(package, url_pattern=PYPI_URL_PATTERN):
               return max(filtered)
   return version
 
+@memo(max_age=20*60)
 def fetch_pypi_pkg_list():
     print('Fetching pypi manifest ...')
     pypi_soup = BeautifulSoup(requests.get('https://pypi.python.org/simple/').text, 'html.parser')
@@ -48,25 +53,28 @@ def fetch_channel_repodata(channel):
     print('Fetching {} manifest ...'.format(channel))
     repodata = requests.get(CHANNEL_URL_PATTERN.format(
         channel=channel, platform='linux-64')).json()
-    PKG_INFO[channel] = repodata['packages']
-    return repodata['packages']
+    repodata = repodata['packages']
 
-def update_info(channel):
-    repodata = fetch_channel_repodata(channel)
-    channel_pkgs = defaultdict(list)
-    for pkg in repodata.keys():
+    manifest = defaultdict(list)
+    for pkg in repodata:
         pkg_name = repodata[pkg]['name']
         pkg_ver = repodata[pkg]['version']
-        channel_pkgs[pkg_name].append(pkg_ver)
+        manifest[pkg_name].append(pkg_ver)
 
-    for pkg, val in channel_pkgs.items():
-         channel_pkgs[pkg] = sorted(val, key = lambda x: parse(x))[-1]
+    for pkg, val in manifest.items():
+        manifest[pkg] = sorted(val, key = lambda x: parse(x))[-1]
 
-    common_pkgs = list(set(channel_pkgs.keys()).intersection(fetch_pypi_pkg_list()))
+    PKG_INFO[channel] = manifest
+    return manifest
+
+def update_info(channel):
+    manifest = fetch_channel_repodata(channel)
+
+    common_pkgs = list(set(manifest.keys()).intersection(fetch_pypi_pkg_list()))
     random.shuffle(common_pkgs)
 
     for pkg in common_pkgs:
-        pkg_com = "{}#{}".format(channel_pkgs[pkg], get_pypi_version(pkg))
+        pkg_com = "{}#{}".format(manifest[pkg], get_pypi_version(pkg))
         REDIS_CONN.hset(channel, pkg, pkg_com)
         print("{}:\t{}#{}".format(channel, pkg, pkg_com))
         time.sleep(1)
