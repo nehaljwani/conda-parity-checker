@@ -71,9 +71,8 @@ def update_info(channel):
     manifest = fetch_channel_repodata(channel)
 
     common_pkgs = list(set(manifest.keys()).intersection(fetch_pypi_pkg_list()))
-    random.shuffle(common_pkgs)
 
-    for pkg in common_pkgs:
+    for pkg in sorted(common_pkgs):
         pkg_com = "{}#{}".format(manifest[pkg], get_pypi_version(pkg))
         REDIS_CONN.hset(channel, pkg, pkg_com)
         print("{}:\t{}#{}".format(channel, pkg, pkg_com))
