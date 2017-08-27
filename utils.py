@@ -7,7 +7,9 @@ import random
 from bs4 import BeautifulSoup
 from packaging.version import parse
 
-URL_PATTERN = 'https://pypi.python.org/pypi/{package}/json'
+PYPI_URL_PATTERN = 'https://pypi.python.org/pypi/{package}/json'
+
+CHANNEL_URL_PATTERN = 'https://conda.anaconda.org/{channel}/{platform}/repodata.json'
 
 REDIS_CONN = redis.StrictRedis(
         host=os.environ.get('REDIS_HOST', '127.0.0.1'),
@@ -17,7 +19,7 @@ REDIS_CONN = redis.StrictRedis(
 CHANNELS = ['conda-forge', 'anaconda', 'c3i_test']
 
 # https://stackoverflow.com/a/34366589/1005215
-def get_pypi_version(package, url_pattern=URL_PATTERN):
+def get_pypi_version(package, url_pattern=PYPI_URL_PATTERN):
   """Return version of package on pypi.python.org using json."""
   req = requests.get(url_pattern.format(package=package))
   version = parse('0')
@@ -40,7 +42,8 @@ def update_info(channels):
     for channel in channels:
         print('Fetching {} manifest ...'.format(channel))
         channel_pkgs = {}
-        repodata = requests.get('https://conda.anaconda.org/{}/linux-64/repodata.json'.format(channel)).json()
+        repodata = requests.get(CHANNEL_URL_PATTERN.format(
+            channel=channel, platform='linux-64')).json()
 
         for pkg in repodata['packages'].keys():
             pkg_name = repodata['packages'][pkg]['name']
