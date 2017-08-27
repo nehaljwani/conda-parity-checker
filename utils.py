@@ -75,7 +75,7 @@ def update_info(channel):
 
     for pkg in sorted(common_pkgs):
         pkg_com = "{}#{}".format(manifest[pkg], get_pypi_version(pkg))
-        REDIS_CONN.hset(channel, pkg, pkg_com)
+        REDIS_CONN.hset("{}|{}".format(channel, 'pypi'), pkg, pkg_com)
         print("{}:\t{}#{}".format(channel, pkg, pkg_com))
 
 def compare_versions(v1, v2):

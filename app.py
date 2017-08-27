@@ -10,11 +10,12 @@ from utils import CHANNELS, compare_versions, infinity, REDIS_CONN, update_info,
 app = Flask(__name__)
 
 @app.route('/')
+@app.route('/pypi')
 def homepage():
      pkg_info = {}
      status_order = {'🤔🤔🤔': 1, '🤔🤔': 2, '🤔': 3, '✓': 4, '🎉': 5}
      for channel in CHANNELS:
-         res = REDIS_CONN.hgetall(channel)
+         res = REDIS_CONN.hgetall("{}|{}".format(channel, 'pypi'))
          res = {k.decode(): (v.decode().split('#')[0], v.decode().split('#')[1])
                  for k, v in res.items()}
          pkg_info[channel] = []
@@ -40,5 +41,5 @@ if __name__ == '__main__':
         print('Starting thread to populate {} info ...'.format(channel))
         threading.Thread(
                 target = infinity,
-                args = (update_info, 30*60, (channel, ))
+                args = (update_info, 15*60, (channel, ))
                 ).start()
