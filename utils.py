@@ -102,4 +102,5 @@ def infinity(f, rest, args=(), kwargs={}):
             f(*args, **kwargs)
         except:
             pass
+        print("Resting for {} seconds ...".format(rest))
         time.sleep(rest)
