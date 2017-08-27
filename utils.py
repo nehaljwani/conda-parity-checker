@@ -26,6 +26,7 @@ PKG_INFO = {}
 memo = Memoizer({})
 
 # https://stackoverflow.com/a/34366589/1005215
+@memo(max_age=20*60)
 def get_pypi_version(package, url_pattern=PYPI_URL_PATTERN):
   """Return version of package on pypi.python.org using json."""
   req = requests.get(url_pattern.format(package=package))
@@ -76,7 +77,6 @@ def update_info(channel):
         pkg_com = "{}#{}".format(manifest[pkg], get_pypi_version(pkg))
         REDIS_CONN.hset(channel, pkg, pkg_com)
         print("{}:\t{}#{}".format(channel, pkg, pkg_com))
-        time.sleep(1)
 
 def compare_versions(v1, v2):
     res = (parse(v1) > parse(v2)) - (parse(v1) < parse(v2))
