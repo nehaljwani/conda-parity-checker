@@ -21,8 +21,6 @@ REDIS_CONN = redis.StrictRedis(
 
 CHANNELS = ['conda-forge', 'anaconda', 'c3i_test']
 
-PKG_INFO = {}
-
 memo = Memoizer({})
 
 # https://stackoverflow.com/a/34366589/1005215
@@ -50,7 +48,6 @@ def fetch_pypi_pkg_list():
     return pypi_pkgs
 
 def fetch_channel_repodata(channel):
-    global PKG_INFO
     print('Fetching {} manifest ...'.format(channel))
     repodata = requests.get(CHANNEL_URL_PATTERN.format(
         channel=channel, platform='linux-64')).json()
@@ -65,7 +62,9 @@ def fetch_channel_repodata(channel):
     for pkg, val in manifest.items():
         manifest[pkg] = sorted(val, key = lambda x: parse(x))[-1]
 
-    PKG_INFO[channel] = manifest
+    REDIS_CONN.hmset("{}|{}".format(channel, 'repodata'),
+                    {k: v for k, v in manifest.items()})
+
     return manifest
 
 def update_info(channel):
