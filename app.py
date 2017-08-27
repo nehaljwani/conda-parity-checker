@@ -10,7 +10,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def homepage():
-
      pkg_info = {}
      status_order = {'🤔🤔🤔': 1, '🤔🤔': 2, '🤔': 3, '✓': 4, '🎉': 5}
      for channel in CHANNELS:
@@ -35,8 +34,9 @@ if __name__ == '__main__':
             kwargs = {'host': '0.0.0.0',
                       'port': int(os.environ.get('PORT', 5000))}
             ).start()
-    print('Starting thread to populate info ...')
-    threading.Thread(
-            target = infinity,
-            args = (update_info, (CHANNELS, ))
-            ).start()
+    for channel in CHANNELS:
+        print('Starting thread to populate {} info ...'.format(channel))
+        threading.Thread(
+                target = infinity,
+                args = (update_info, 30*60, (channel, ))
+                ).start()
