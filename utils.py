@@ -24,10 +24,12 @@ def get_pypi_version(package, url_pattern=URL_PATTERN):
   if req.status_code == requests.codes.ok:
       j = json.loads(req.text.encode(req.encoding))
       if 'releases' in j:
-          releases = j['releases']
-          for release in releases:
-              ver = parse(release)
-              version = max(version, ver)
+          versions = [parse(s) for s in j['releases']]
+          filtered = [v for v in versions if not v.is_prerelease]
+          if len(filtered) == 0:
+              return max(versions)
+          else:
+              return max(filtered)
   return version
 
 def update_info(channels):
