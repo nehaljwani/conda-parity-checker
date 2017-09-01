@@ -93,7 +93,7 @@ def update_info_pypi(channel, ch_manifest):
     for pkg in sorted(common_pkgs):
         pkg_com = "{}#{}".format(ch_manifest[pkg], get_pypi_version(pkg))
         REDIS_CONN.hset("{}|{}".format(channel, 'pypi'), pkg, pkg_com)
-        print("{}:\t{}#{}".format(channel, pkg, pkg_com))
+        print("{}|pypi:\t{}#{}".format(channel, pkg, pkg_com))
 
 # Conda Channels
 #+=============================================================================
@@ -195,9 +195,9 @@ def fetch_archlinux_pkg_list():
     return archlinux_manifest
 
 def update_info_archlinux(channel, ch_manifest):
-    archlinux_manifest = fetch_archlinux_pkg_list()
+    archlinux_manifest = {}
 
-    for pkg, val in archlinux_manifest.items():
+    for pkg, val in fetch_archlinux_pkg_list().items():
         archlinux_manifest[pkg] = sorted(val, key = lambda x: parse(x))[-1]
 
     archlinux_pkgs_set1 = archlinux_manifest.keys()
@@ -223,7 +223,7 @@ def update_info_archlinux(channel, ch_manifest):
     for pkg1, pkg2 in final_matches:
         key = "{}#{}".format(pkg1, pkg2)
         val = "{}#{}".format(ch_manifest[pkg1], archlinux_manifest[pkg2])
-        print("{}:\t{}#{}".format(channel, key, val))
+        print("{}|archlinux:\t{}#{}".format(channel, key, val))
         r_dict[key] = val
     REDIS_CONN.hmset("{}|{}".format(channel, 'archlinux'), r_dict)
 
