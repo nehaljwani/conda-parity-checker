@@ -192,18 +192,24 @@ def fetch_archlinux_pkg_list():
             pkg_ver = member.split('-')[-2]
             archlinux_manifest[pkg_name].append(pkg_ver)
         t.close()
+
+    for pkg, val in archlinux_manifest.items():
+        archlinux_manifest[pkg] = sorted(val, key = lambda x: parse(x))[-1]
+
     return archlinux_manifest
 
 def update_info_archlinux(channel, ch_manifest):
-    archlinux_manifest = {}
-
-    for pkg, val in fetch_archlinux_pkg_list().items():
-        archlinux_manifest[pkg] = sorted(val, key = lambda x: parse(x))[-1]
+    archlinux_manifest = fetch_archlinux_pkg_list()
 
     archlinux_pkgs_set1 = archlinux_manifest.keys()
     archlinux_pkgs = {re.sub(r'(python.?-|-python.?)', '', x): x for x in archlinux_pkgs_set1}
     archlinux_pkgs_set2 = archlinux_pkgs.keys()
-    final_matches = set()
+
+    def _update_comparison(pkg1, pkg2):
+        key = "{}#{}".format(pkg1, pkg2)
+        val = "{}#{}".format(ch_manifest[pkg1], archlinux_manifest[pkg2])
+        print("{}|archlinux:\t{}#{}".format(channel, key, val))
+        REDIS_CONN.hset("{}|{}".format(channel, 'archlinux'), key, val)
 
     for package in ch_manifest:
         close_matches = difflib.get_close_matches(package, archlinux_pkgs_set2,
@@ -211,21 +217,13 @@ def update_info_archlinux(channel, ch_manifest):
         close_matches = [archlinux_pkgs[x] for x in close_matches]
         match = obtain_match_archlinux(package, close_matches)
         if match:
-            final_matches.add((package, match))
+            _update_comparison(package, match)
 
         close_matches = difflib.get_close_matches(package, archlinux_pkgs_set1,
                                                   ARCHLINUX_CLOSEST_MATCH_N)
         match = obtain_match_archlinux(package, close_matches)
         if match:
-            final_matches.add((package, match))
-
-    r_dict = {}
-    for pkg1, pkg2 in final_matches:
-        key = "{}#{}".format(pkg1, pkg2)
-        val = "{}#{}".format(ch_manifest[pkg1], archlinux_manifest[pkg2])
-        print("{}|archlinux:\t{}#{}".format(channel, key, val))
-        r_dict[key] = val
-    REDIS_CONN.hmset("{}|{}".format(channel, 'archlinux'), r_dict)
+            _update_comparison(package, match)
 
 def update_info(channel):
     manifest = fetch_channel_repodata(channel)
