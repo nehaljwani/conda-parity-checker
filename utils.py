@@ -23,7 +23,7 @@ REDIS_CONN = redis.StrictRedis(
         port=os.environ.get('REDIS_PORT', '6379'),
         password=os.environ.get('REDIS_PASSWORD', '¯\_(ツ)_/¯'))
 
-CHANNELS = ['conda-forge', 'anaconda', 'c3i_test']
+CHANNELS = ['conda-forge', 'anaconda', 'c3i_test', 'c3i_test2']
 
 ARCHLINUX_CLOSEST_MATCH_N = 20
 
