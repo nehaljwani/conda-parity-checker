@@ -56,3 +56,6 @@ div.channels {
     margin-bottom: 12px; /* Add some space below the input */
 }
 
+#routes {
+    text-align: center;
+}
