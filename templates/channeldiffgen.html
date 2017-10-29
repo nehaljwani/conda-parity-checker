@@ -1,0 +1,16 @@
+<html>
+    {% include 'header.html' %}
+    <body>
+    {% include 'forkme.html' %}
+    <div id="routes">
+        {% for entry in entries %}
+        <p>
+        <button class="btn btn-embossed btn-inverse" style="width:25%" onclick="location.href = '/channeldiff/{{ entry[0] }}/{{ entry[1] }}';">
+            {{ entry[0] }} v/s {{entry[1]}}
+        </button>
+        </p>
+        {% endfor %}
+    </div>
+    </div>
+    </body>
+</html>

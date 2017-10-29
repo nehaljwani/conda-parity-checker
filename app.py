@@ -4,6 +4,7 @@ import os
 from flask import Flask
 from flask import render_template
 from datetime import datetime
+from itertools import combinations
 from utils import CHANNELS, compare_versions, infinity, REDIS_CONN, update_info, \
         fetch_pypi_pkg_list, fetch_archlinux_pkg_list
 
@@ -54,6 +55,12 @@ def archlinux():
          pkg_info[channel].sort(key = lambda x: status_order[x['conda_pkg_status']])
 
      return render_template("archlinux.html", pkg_info=pkg_info)
+
+
+@app.route('/channeldiff')
+def channeldiffgen():
+    return render_template("channeldiffgen.html",
+                           entries=list(combinations(CHANNELS, r=2)))
 
 
 @app.route('/channeldiff/<ch1>/<ch2>')
