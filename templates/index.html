@@ -6,6 +6,7 @@
     {% for channel in pkg_info.keys() %}
         <a href="#{{ channel }}" class="button">{{ channel.upper() }}</a>
     {% endfor %}
+    {% include 'searchbar.html' %}
     </div>
     <div class="content">
     {% for channel in pkg_info.keys() %}

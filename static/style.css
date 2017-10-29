@@ -44,3 +44,15 @@ div.channels {
 .dummy_table {
     height: 50px;
 }
+
+#search_pkgs {
+    background-image: url('/static/searchicon.png'); /* Add a search icon to input */
+    background-size: contain; /* Position the search icon */
+    background-repeat: no-repeat; /* Do not repeat the icon image */
+    width: auto; /* Full-width */
+    font-size: 16px; /* Increase font-size */
+    padding: 12px 20px 12px 50px; /* Add some padding */
+    border: 1px solid #ddd; /* Add a grey border */
+    margin-bottom: 12px; /* Add some space below the input */
+}
+

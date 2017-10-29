@@ -1,0 +1,23 @@
+<input type="text" id="search_pkgs" onkeyup="search_pkgs()" placeholder="Search for pkgs..">
+<script>
+function search_pkgs() {
+  // Declare variables
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("search_pkgs");
+  filter = input.value.toUpperCase();
+  tables = document.getElementsByClassName("parity_tables");
+  for (t = 0; t < tables.length; t++) {
+    tr = tables[t].getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+      if (td) {
+        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+}
+</script>
