@@ -1,5 +1,11 @@
 <input type="text" id="search_pkgs" onkeyup="search_pkgs()" placeholder="Search for pkgs..">
 <script>
+window.addEventListener("keydown",function (e) {
+  if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+     e.preventDefault();
+     document.getElementById("search_pkgs").focus();
+  }
+})
 function search_pkgs() {
   // Declare variables
   var input, filter, table, tr, td, i;
