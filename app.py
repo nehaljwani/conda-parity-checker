@@ -12,8 +12,11 @@ app = Flask(__name__)
 status_order = {'🤔🤔🤔': 1, '🤔🤔': 2, '🤔': 3, '✓': 4, '🎉': 5}
 
 @app.route('/')
-@app.route('/pypi')
 def homepage():
+     return render_template("index.html")
+
+@app.route('/pypi')
+def pypi():
      pkg_info = {}
      for channel in CHANNELS:
          res = REDIS_CONN.hgetall("{}|{}".format(channel, 'pypi'))
@@ -29,7 +32,7 @@ def homepage():
                  'pip_ver': v[1]})
          pkg_info[channel].sort(key = lambda x: status_order[x['pkg_status']])
 
-     return render_template("index.html", pkg_info=pkg_info)
+     return render_template("pypi.html", pkg_info=pkg_info)
 
 
 @app.route('/archlinux')
