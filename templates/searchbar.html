@@ -1,7 +1,7 @@
-<input type="text" id="search_pkgs" onkeyup="search_pkgs()" placeholder="Search for pkgs..">
+<input type="text" id="search_pkgs" onkeyup="search_pkgs()" placeholder="Search for pkgs.." title="Press '/'">
 <script>
 window.addEventListener("keydown",function (e) {
-  if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+  if (e.keyCode === 191) {
      e.preventDefault();
      document.getElementById("search_pkgs").focus();
   }
