@@ -99,9 +99,11 @@ def update_info_pypi(channel, ch_manifest):
 #+=============================================================================
 def fetch_channel_repodata(channel):
     print('Fetching {} manifest ...'.format(channel))
-    repodata = requests.get(CHANNEL_URL_PATTERN.format(
-        channel=channel, platform='linux-64')).json()
-    repodata = repodata['packages']
+    repodata = {}
+    for platform in ['linux-64', 'noarch']:
+        r = requests.get(CHANNEL_URL_PATTERN.format(
+            channel=channel, platform=platform)).json()
+        repodata.update(r['packages'])
 
     manifest = defaultdict(list)
     for pkg in repodata:
