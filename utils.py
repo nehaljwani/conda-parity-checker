@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from collections import defaultdict
 from packaging.version import parse
 
-PYPI_URL_PATTERN = 'https://pypi.python.org/pypi/{package}/json'
+PYPI_URL_PATTERN = 'https://pypi.org/pypi/{package}/json'
 
 CHANNEL_URL_PATTERN = 'https://conda.anaconda.org/{channel}/{platform}/repodata.json'
 
@@ -70,7 +70,7 @@ def get_pypi_version(package, url_pattern=PYPI_URL_PATTERN):
   req = requests.get(url_pattern.format(package=package))
   version = parse('0')
   if req.status_code == requests.codes.ok:
-      j = json.loads(req.text.encode(req.encoding))
+      j = json.loads(req.text)
       if 'releases' in j:
           versions = [parse(s) for s in j['releases']]
           filtered = [v for v in versions if not v.is_prerelease]
